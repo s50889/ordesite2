@@ -12,39 +12,39 @@ import Link from 'next/link'
 
 interface Order {
   id: string
-  order_number: string
-  customer_id: string
-  status: string
-  created_at: string
-  shipping_name: string
-  shipping_email: string
+  order_number: string | null
+  customer_id: string | null
+  status: string | null
+  created_at: string | null
+  shipping_name: string | null
+  shipping_email: string | null
   shipping_phone: string | null
-  shipping_postal_code: string
-  shipping_prefecture: string
-  shipping_city: string
-  shipping_address: string
+  shipping_postal_code: string | null
+  shipping_prefecture: string | null
+  shipping_city: string | null
+  shipping_address: string | null
   shipping_company: string | null
   delivery_date: string | null
   note: string | null
   cancelled_by?: string | null
   cancelled_at?: string | null
-  total_qty: number
+  total_qty: number | null
   customer: {
     full_name: string | null
     email: string
     company_name: string | null
-  }
+  } | null
   cancelled_user?: {
     full_name: string | null
     email: string
   } | null
   order_lines: Array<{
     id: string
-    quantity: number
+    quantity: number | null
     product: {
       id: string
-      sku: string
-      name: string
+      sku: string | null
+      name: string | null
     }
   }>
 }

@@ -50,6 +50,7 @@ export default function SignupPage() {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             company_name: formData.companyName,
             department: formData.department,
@@ -65,8 +66,12 @@ export default function SignupPage() {
         throw error
       }
       
-      // 成功メッセージ
-      alert('アカウント登録が完了しました。承認後にご利用いただけます。')
+      // メール確認が必要かチェック
+      if (data.user && !data.user.email_confirmed_at) {
+        alert('確認メールを送信しました。\n\nメール内の「メールアドレスを確認する」ボタンをクリックして、登録を完了してください。\n\n※確認メールが届かない場合は、迷惑メールフォルダもご確認ください。')
+      } else {
+        alert('アカウント登録が完了しました。ログインしてご利用ください。')
+      }
       
       // 登録成功後、ログインページにリダイレクト
       window.location.href = '/login'

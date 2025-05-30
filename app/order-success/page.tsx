@@ -1,6 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+// 動的レンダリングを強制（useSearchParamsのため）
+export const dynamic = 'force-dynamic'
+
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,8 +11,9 @@ import Link from 'next/link'
 import { CheckCircle, Package, ArrowRight, Home, ShoppingCart, Phone, Mail } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { sendOrderConfirmationEmail } from '@/lib/email'
+import { Navbar } from '@/components/layout/navbar'
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const searchParams = useSearchParams()
   const [orderId, setOrderId] = useState<string | null>(null)
   const [orderNumber, setOrderNumber] = useState<string | null>(null)
@@ -280,5 +284,13 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderSuccessContent />
+    </Suspense>
   )
 } 

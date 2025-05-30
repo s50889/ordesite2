@@ -1,6 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+// 動的レンダリングを強制（useSearchParamsのため）
+export const dynamic = 'force-dynamic'
+
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Navbar } from '@/components/layout/navbar'
@@ -13,7 +16,7 @@ import Link from 'next/link'
 import { useCart } from '@/hooks/use-cart'
 import { Product, Category } from '@/types'
 
-export default function ProductsPage() {
+function ProductsContent() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,96 +37,55 @@ export default function ProductsPage() {
     if (searchParam) {
       setSearchQuery(searchParam)
     }
+    
+    // データを取得
+    const fetchData = async () => {
+      try {
+        const supabase = createClient()
+        
+        console.log('=== 製品カタログページ: データ取得開始 ===')
+        
+        // 製品を取得
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .order('name')
+
+        console.log('製品取得結果:', { productsData, productsError })
+
+        if (productsError) {
+          console.error('製品取得エラー:', productsError)
+        }
+
+        if (productsData) {
+          setProducts(productsData as unknown as Product[])
+        }
+
+        // カテゴリデータを取得
+        const { data: categoriesData } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order')
+
+        if (categoriesData) {
+          setCategories(categoriesData as unknown as Category[])
+        }
+      } catch (error) {
+        console.error('製品取得エラー:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchData()
   }, [searchParams])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const supabase = createClient()
-      
-      console.log('=== 製品カタログページ: データ取得開始 ===')
-      
-      // 現在のユーザー認証状態を確認
-      const { data: user, error: userError } = await supabase.auth.getUser()
-      console.log('現在のユーザー:', user)
-      console.log('ユーザーエラー:', userError)
-      
-      // RLSポリシーのテスト - 認証なしでのデータ取得を試行
-      console.log('=== RLSポリシーテスト ===')
-      const { data: testProducts, error: testError } = await supabase
-        .from('products')
-        .select('id, sku, name, is_active, category_id')
-        .limit(5)
-      console.log('テスト製品取得:', { testProducts, testError })
-      
-      // カテゴリを取得（デバッグページと同じ方法）
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('display_order', { ascending: true })
-
-      console.log('カテゴリ取得結果:', { categoriesData, categoriesError })
-
-      if (categoriesError) {
-        console.error('カテゴリ取得エラー:', categoriesError)
-        console.error('エラー詳細:', {
-          message: categoriesError.message,
-          details: categoriesError.details,
-          hint: categoriesError.hint,
-          code: categoriesError.code
-        })
-      }
-
-      if (categoriesData) {
-        // アクティブなカテゴリのみをフィルタリング
-        const activeCategories = categoriesData.filter(cat => cat.is_active === true)
-        console.log('全カテゴリ数:', categoriesData.length, 'アクティブカテゴリ数:', activeCategories.length)
-        setCategories(activeCategories)
-      } else {
-        console.log('カテゴリデータが取得できませんでした')
-        setCategories([])
-      }
-
-      // 製品を取得（デバッグページと同じ方法）
-      const { data: productsData, error: productsError } = await supabase
-        .from('products')
-        .select('*')
-        .order('name')
-
-      console.log('製品取得結果:', { productsData, productsError })
-      console.log('取得された製品数:', productsData?.length || 0)
-
-      if (productsError) {
-        console.error('製品取得エラー:', productsError)
-        console.error('エラー詳細:', {
-          message: productsError.message,
-          details: productsError.details,
-          hint: productsError.hint,
-          code: productsError.code
-        })
-      }
-
-      if (productsData) {
-        // アクティブな製品のみをフィルタリング
-        const activeProducts = productsData.filter(product => product.is_active === true)
-        console.log('全製品数:', productsData.length, 'アクティブ製品数:', activeProducts.length)
-        console.log('製品詳細:')
-        activeProducts.forEach((product, index) => {
-          console.log(`  ${index}: SKU=${product.sku}, Name=${product.name}, CategoryID=${product.category_id}, IsActive=${product.is_active}`)
-        })
-        setProducts(activeProducts)
-      } else {
-        console.log('製品データが取得できませんでした')
-        setProducts([])
-      }
-      setLoading(false)
-    }
-
-    fetchData()
-  }, [])
-
+  // フィルタリングされた製品（null値を適切にハンドリング）
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = searchQuery === '' || 
+      (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase()))
     
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory
     
@@ -138,14 +100,15 @@ export default function ProductsPage() {
   console.log('選択されたカテゴリ:', selectedCategory)
   console.log('利用可能なカテゴリ:', categories.map(c => ({ id: c.id, name: c.name })))
 
-  const handleAddToCart = async (productId: string) => {
-    try {
-      await addToCart(productId)
-      alert('カートに追加しました')
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message)
-      }
+  const handleAddToCart = (product: Product) => {
+    if (product.name && product.sku) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        image_url: product.image_url || '',
+        quantity: 1
+      })
     }
   }
 
@@ -279,7 +242,7 @@ function ProductGrid({
 }: { 
   products: Product[]
   viewMode: 'grid' | 'list'
-  onAddToCart: (productId: string) => void 
+  onAddToCart: (product: Product) => void 
 }) {
   if (viewMode === 'grid') {
     return (
@@ -308,7 +271,7 @@ function ProductCard({
 }: { 
   product: Product
   index: number
-  onAddToCart: (productId: string) => void 
+  onAddToCart: (product: Product) => void 
 }) {
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-105 bg-white border-0 overflow-hidden" style={{animationDelay: `${index * 50}ms`}}>
@@ -368,7 +331,7 @@ function ProductCard({
         
         <div className="flex gap-2">
           <Button
-            onClick={() => onAddToCart(product.id)}
+            onClick={() => onAddToCart(product)}
             className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-2 rounded-lg transition-all duration-300 hover:scale-105"
           >
             <ShoppingCart className="w-4 h-4 mr-1" />
@@ -397,7 +360,7 @@ function ProductListItem({
 }: { 
   product: Product
   index: number
-  onAddToCart: (productId: string) => void 
+  onAddToCart: (product: Product) => void 
 }) {
   return (
     <Card className="hover:shadow-lg transition-all duration-300 bg-white border-0" style={{animationDelay: `${index * 30}ms`}}>
@@ -459,7 +422,7 @@ function ProductListItem({
           
           <div className="flex flex-col gap-2 justify-center">
             <Button
-              onClick={() => onAddToCart(product.id)}
+              onClick={() => onAddToCart(product)}
               className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
@@ -469,5 +432,23 @@ function ProductListItem({
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">製品を読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ProductsContent />
+    </Suspense>
   )
 } 

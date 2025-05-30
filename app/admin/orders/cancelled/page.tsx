@@ -12,39 +12,40 @@ import Link from 'next/link'
 
 interface CancelledOrder {
   id: string
-  order_number: string
-  customer_id: string
-  status: string
-  created_at: string
+  order_number: string | null
+  customer_id: string | null
+  status: string | null
+  created_at: string | null
   cancelled_at: string | null
   cancelled_by: string | null
-  shipping_name: string
-  shipping_email: string
+  shipping_name: string | null
+  shipping_email: string | null
   shipping_phone: string | null
-  shipping_postal_code: string
-  shipping_prefecture: string
-  shipping_city: string
-  shipping_address: string
+  shipping_postal_code: string | null
+  shipping_prefecture: string | null
+  shipping_city: string | null
+  shipping_address: string | null
   shipping_company: string | null
   delivery_date: string | null
   note: string | null
-  total_qty: number
+  total_qty: number | null
+  requested_at: string | null
   customer: {
     full_name: string | null
     email: string
     company_name: string | null
-  }
-  cancelled_user?: {
+  } | null
+  cancelled_user: {
     full_name: string | null
     email: string
   } | null
   order_lines: Array<{
     id: string
-    quantity: number
+    quantity: number | null
     product: {
       id: string
-      sku: string
-      name: string
+      name: string | null
+      sku: string | null
     }
   }>
 }
@@ -154,9 +155,9 @@ export default function CancelledOrdersPage() {
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = searchQuery === '' || 
-      order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.shipping_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.shipping_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customer?.company_name?.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesDate = dateFilter === '' || 
@@ -289,25 +290,25 @@ export default function CancelledOrdersPage() {
                         <tr key={order.id} className="border-b hover:bg-red-50">
                           <td className="p-3">
                             <div className="font-medium text-red-600">
-                              {order.order_number}
+                              {order.order_number || ''}
                             </div>
                           </td>
                           <td className="p-3">
                             <div className="text-sm">
-                              {new Date(order.created_at).toLocaleDateString('ja-JP')}
+                              {order.created_at ? new Date(order.created_at).toLocaleDateString('ja-JP') : ''}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {new Date(order.created_at).toLocaleTimeString('ja-JP')}
+                              {order.created_at ? new Date(order.created_at).toLocaleTimeString('ja-JP') : ''}
                             </div>
                           </td>
                           <td className="p-3">
                             {order.cancelled_at ? (
                               <>
                                 <div className="text-sm text-red-600 font-medium">
-                                  {new Date(order.cancelled_at).toLocaleDateString('ja-JP')}
+                                  {order.cancelled_at ? new Date(order.cancelled_at).toLocaleDateString('ja-JP') : ''}
                                 </div>
                                 <div className="text-xs text-red-500">
-                                  {new Date(order.cancelled_at).toLocaleTimeString('ja-JP')}
+                                  {order.cancelled_at ? new Date(order.cancelled_at).toLocaleTimeString('ja-JP') : ''}
                                 </div>
                               </>
                             ) : (
@@ -318,14 +319,14 @@ export default function CancelledOrdersPage() {
                             <div className="flex items-center gap-2 mb-1">
                               <User className="h-4 w-4 text-gray-400" />
                               <span className="text-sm font-medium">
-                                {order.customer?.full_name || order.shipping_name}
+                                {order.customer?.full_name || order.shipping_name || ''}
                               </span>
                             </div>
                             {order.customer?.company_name && (
                               <div className="flex items-center gap-2">
                                 <Building className="h-4 w-4 text-gray-400" />
                                 <span className="text-xs text-gray-600">
-                                  {order.customer.company_name}
+                                  {order.customer.company_name || ''}
                                 </span>
                               </div>
                             )}
@@ -339,7 +340,7 @@ export default function CancelledOrdersPage() {
                             <div className="flex items-center gap-2">
                               <Package className="h-4 w-4 text-gray-400" />
                               <span className="text-sm font-medium">
-                                {order.total_qty || order.order_lines.reduce((sum, line) => sum + line.quantity, 0)}点
+                                {order.total_qty ? order.total_qty.toString() : order.order_lines.reduce((sum, line) => sum + (line.quantity || 0), 0).toString()}点
                               </span>
                             </div>
                           </td>

@@ -1,6 +1,9 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+// 動的レンダリングを強制（useSearchParamsのため）
+export const dynamic = 'force-dynamic'
+
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,6 +27,14 @@ interface ShippingAddress {
 }
 
 export default function OrderCheckPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderCheckContent />
+    </Suspense>
+  )
+}
+
+function OrderCheckContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { items, clearCart } = useCart()
