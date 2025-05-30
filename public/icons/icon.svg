@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6" />
+      <stop offset="50%" style="stop-color:#6366f1" />
+      <stop offset="100%" style="stop-color:#7c3aed" />
+    </linearGradient>
+    <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24" />
+      <stop offset="100%" style="stop-color:#f59e0b" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="102" fill="url(#bgGradient)"/>
+  
+  <!-- Sparkleアイコン -->
+  <g transform="translate(256, 256)">
+    <!-- 大きな星 -->
+    <path d="M 0,-100 L 20,-20 L 100,0 L 20,20 L 0,100 L -20,20 L -100,0 L -20,-20 Z" 
+          fill="white" opacity="0.9"/>
+    
+    <!-- 小さな星（右上） -->
+    <g transform="translate(80, -80) scale(0.5)">
+      <path d="M 0,-40 L 10,-10 L 40,0 L 10,10 L 0,40 L -10,10 L -40,0 L -10,-10 Z" 
+            fill="url(#sparkleGradient)"/>
+    </g>
+    
+    <!-- 小さな星（左下） -->
+    <g transform="translate(-60, 60) scale(0.3)">
+      <path d="M 0,-40 L 10,-10 L 40,0 L 10,10 L 0,40 L -10,10 L -40,0 L -10,-10 Z" 
+            fill="white" opacity="0.7"/>
+    </g>
+  </g>
+  
+  <!-- Tの文字（オプション） -->
+  <!-- <text x="256" y="370" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+        fill="white" text-anchor="middle" opacity="0.8">TATSUMI</text> -->
+</svg> 
