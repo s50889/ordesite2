@@ -13,6 +13,9 @@ import { ArrowLeft, Save, Settings, Globe, Mail, Truck, CreditCard, Shield, Data
 import Link from 'next/link'
 import { toast } from 'sonner'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface SiteSettings {
   site_name: string
   site_description: string

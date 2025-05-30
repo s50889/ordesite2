@@ -37,27 +37,27 @@ function ProductsContent() {
     if (searchParam) {
       setSearchQuery(searchParam)
     }
-    
+
     // データを取得
     const fetchData = async () => {
       try {
-        const supabase = createClient()
-        
-        console.log('=== 製品カタログページ: データ取得開始 ===')
-        
+      const supabase = createClient()
+      
+      console.log('=== 製品カタログページ: データ取得開始 ===')
+      
         // 製品を取得
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select('*')
-          .order('name')
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .order('name')
 
-        console.log('製品取得結果:', { productsData, productsError })
+      console.log('製品取得結果:', { productsData, productsError })
 
-        if (productsError) {
-          console.error('製品取得エラー:', productsError)
-        }
+      if (productsError) {
+        console.error('製品取得エラー:', productsError)
+      }
 
-        if (productsData) {
+      if (productsData) {
           setProducts(productsData as unknown as Product[])
         }
 
@@ -74,10 +74,10 @@ function ProductsContent() {
       } catch (error) {
         console.error('製品取得エラー:', error)
       } finally {
-        setLoading(false)
+      setLoading(false)
       }
     }
-    
+
     fetchData()
   }, [searchParams])
 

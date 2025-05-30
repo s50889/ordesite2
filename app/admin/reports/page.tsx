@@ -10,6 +10,9 @@ import { toast } from 'sonner'
 import { ArrowLeft, Eye, TrendingUp, Package, ShoppingCart, Users, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface ReportData {
   totalOrders: number
   totalProducts: number

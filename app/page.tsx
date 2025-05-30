@@ -15,6 +15,9 @@ import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { Footer } from '../src/components/layout/footer'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface Product {
   id: string
   sku: string | null

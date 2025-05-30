@@ -14,6 +14,9 @@ import { Plus, Edit, Trash2, Megaphone, Calendar, Tag } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface Announcement {
   id: string
   title: string

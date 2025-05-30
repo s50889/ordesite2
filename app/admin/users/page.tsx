@@ -11,6 +11,9 @@ import { toast } from 'sonner'
 import { Users, ArrowLeft, Search } from 'lucide-react'
 import Link from 'next/link'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface UserProfile {
   id: string
   email: string

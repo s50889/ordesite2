@@ -13,6 +13,9 @@ import { FolderPlus, Trash2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Category, Product } from '@/types'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 export default function CategoriesManagePage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [products, setProducts] = useState<Product[]>([])

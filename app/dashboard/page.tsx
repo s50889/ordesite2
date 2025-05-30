@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDate } from '@/lib/utils'
 import { BarChart, Package, ShoppingCart } from 'lucide-react'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface Order {
   id: string
   status: 'pending' | 'processing' | 'shipped' | 'completed'

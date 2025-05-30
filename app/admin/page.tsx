@@ -9,6 +9,9 @@ import { Package, Plus, Trash2, Edit, FolderPlus, ShoppingCart, Users, Eye, Chev
 import { Category, Product } from '@/types'
 import Link from 'next/link'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 interface Order {
   id: string
   order_number: string

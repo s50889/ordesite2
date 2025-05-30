@@ -14,6 +14,9 @@ import { Package, Plus, Trash2, ArrowLeft, Edit, Save, X, Upload, Image as Image
 import Link from 'next/link'
 import { Category, Product } from '@/types'
 
+// Dynamic rendering を強制してSSG時のエラーを回避
+export const dynamic = 'force-dynamic'
+
 export default function ProductsManagePage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
